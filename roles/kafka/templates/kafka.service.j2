@@ -1,0 +1,12 @@
+[Unit]
+Description=Kafka Service
+
+[Service]
+Type=simple
+User={{ user }}
+Group={{ group }}
+ExecStart=/bin/sh -c '/home/{{ user }}/{{ kafka_version }}/bin/kafka-server-start.sh /home/{{ user }}/{{ kafka_version }}/config/server.properties'
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target

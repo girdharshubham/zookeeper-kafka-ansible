@@ -1,0 +1,14 @@
+---
+# defaults file for kafka
+kafka_url: http://apachemirror.wuchna.com/kafka/2.3.0/{{ kafka_version }}.tgz
+kafka_version: kafka_2.12-2.3.0
+
+retention_period: 1
+partition_number: 6
+zookeeper_ensemble: >-
+  {% set ensemble = [] %}{% for host in groups['private']|list %}{{ ensemble.append(host+":2181")}}{% endfor %}{{ ensemble|join(",") }}
+
+# Conditionals
+kafka_home_dir_conditional: not kafka_symlink_status.stat.exists
+symlink_conditional: not kafka_symlink_status.stat.exists
+reload_daemon_conditional: systemd_kafka.changed

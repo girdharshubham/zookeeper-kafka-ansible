@@ -1,0 +1,10 @@
+---
+# tasks file for package-install
+- name: Installing package
+  package:
+    name: "{{ item }}"
+    state: present
+  become: yes
+  become_method: sudo
+  loop: "{{ package_list }}"
+  when: "{{ package_list|length>0 }}"

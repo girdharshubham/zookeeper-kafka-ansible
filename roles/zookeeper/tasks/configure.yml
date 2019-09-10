@@ -1,0 +1,29 @@
+- name: Setting zookeeper id
+  template:
+    src: myid.j2
+    dest: >-
+      {{ symlink_path }}/data/myid
+    owner: '{{ user }}'
+    group: '{{ group }}'
+
+- name: Configuring Zookeeper
+  template:
+    src: zookeeper.cfg.j2
+    dest: >-
+      {{ zookeeper_version }}-bin/conf/zookeeper.cfg
+  notify: Restarting Zookeeper
+
+- name: Setting up systemd
+  template:
+    src: zookeeper.service.j2
+    dest: /etc/systemd/system/zookeeper.service
+  become: yes
+  become_method: sudo
+  register: systemd_zookeeper 
+
+- name: Reloading Systemd daemon
+  systemd:
+    daemon_reload: yes
+  become: yes
+  become_method: sudo
+  when: '{{ reload_daemon_conditional }}'

@@ -1,0 +1,14 @@
+---
+# defaults file for gpu
+device_name: /dev/sdc
+mount_path: /mnt/{{ service_name }}
+service_name: service_name
+user: user
+group: group
+symlink_path: /home/{{ user }}/{{ user }}-link
+
+device_mount_status_condition: device_availability.stdout.find("{{ device_name }}") != -1
+file_system_condition: device_availability.stdout.find("{{ device_name }}") != -1 and mount_status.stdout.find("{{ device_name }}") == -1
+mount_data_disk_condition: device_availability.stdout.find("{{ device_name }}") != -1 and mount_status.stdout.find("{{ device_name }}") == -1
+symlink_conditional: not symlink.stat.exists
+

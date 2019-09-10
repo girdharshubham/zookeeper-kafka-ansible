@@ -1,0 +1,6 @@
+---
+# vars file for kafka
+service_name: kafka
+kafka_mount_path: /mnt/{{ service_name }}
+kafka_symlink_path: /var/lib/{{ service_name }}
+kafka_dir: /home/{{ user }}

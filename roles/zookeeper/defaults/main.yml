@@ -1,0 +1,15 @@
+---
+service_name: zookeeper
+zookeeper_servers: '{{ groups["zookeeper"] }}'
+
+mount_path: /mnt/kafka
+symlink_path: /var/lib/{{ service_name }}
+zookeeper_dir: /home/{{ user }}
+
+symlink_conditional: not zookeeper_symlink_status.stat.exists
+datadir_conditional: not datadir_status.stat.exists
+reload_daemon_conditional: systemd_zookeeper.changed
+zookeeper_home_dir_conditional: not zookeeper_symlink_status.stat.exists
+
+zookeeper_url: http://apachemirror.wuchna.com/zookeeper/zookeeper-3.5.5/{{ zookeeper_version }}-bin.tar.gz
+zookeeper_version: apache-zookeeper-3.5.5

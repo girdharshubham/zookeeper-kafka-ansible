@@ -1,0 +1,62 @@
+- name: Downloading Zookeeper
+  get_url:
+    url: '{{ zookeeper_url }}'
+    dest: '{{ zookeeper_dir }}'
+    owner: '{{ user }}'
+    group: '{{ group }}'
+    mode: '0755'
+
+- name: Unpacking Zookeeper
+  unarchive: 
+    src: >-
+      {{ zookeeper_version }}-bin.tar.gz
+    dest: ~/
+    owner: '{{ user }}'
+    group: '{{ group }}'
+    remote_src: yes
+
+- name: Checking symlink availability
+  stat:
+    path: '{{ symlink_path }}'
+  register: zookeeper_symlink_status
+
+- name: Creating Zookeeper directory
+  file: 
+    path: >-
+      {{ mount_path }}/zookeeper-dir
+    owner: '{{ user }}'
+    group: '{{ group }}'
+    state: directory
+  become: yes
+  become_method: sudo
+  when: '{{ zookeeper_home_dir_conditional }}'
+
+- name: Creating symbolic link 
+  file:
+    src: >-
+     {{ mount_path }}/zookeeper-dir
+    dest: '{{ symlink_path }}'
+    state: link
+  become: yes
+  become_method: sudo
+  when: '{{ symlink_conditional }}'
+
+- name: Giving Permission to user
+  shell: chown -R {{ user }}:{{ group }} {{ symlink_path }}
+  args:
+    executable: /bin/bash
+  become: yes
+  become_method: sudo
+
+- name:  Checking Data Dir Presence
+  stat:
+    path: >-
+      {{ symlink_path }}/data
+  register: datadir_status
+
+- name: Creating Data Dir
+  file:
+    path: >-
+      {{ symlink_path }}/data
+    state: directory
+  when: '{{ datadir_conditional }}'

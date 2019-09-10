@@ -1,0 +1,49 @@
+- name: Downloading Apache Kafka 
+  get_url:
+    url: '{{ kafka_url }}'
+    dest: '{{ kafka_dir }}'
+    owner: '{{ user }}'
+    group: '{{ group }}'
+    mode: '0755'
+
+- name: Unpacking Apache Kafka
+  unarchive: 
+    src: >-
+      {{ kafka_version }}.tgz
+    dest: ~/
+    owner: '{{ user }}'
+    group: '{{ group }}'
+    remote_src: yes
+
+- name: Checking symlink availability
+  stat:
+    path: '{{ kafka_symlink_path }}'
+  register: kafka_symlink_status
+
+- name: Creating Apache Kafka directory
+  file: 
+    path: >-
+      {{ kafka_mount_path }}/kafka-dir
+    owner: '{{ user }}'
+    group: '{{ group }}'
+    state: directory
+  become: yes
+  become_method: sudo
+  when: '{{ kafka_home_dir_conditional }}'
+
+- name: Creating symlink 
+  file:
+    src: >-
+     {{ kafka_mount_path }}/kafka-dir
+    dest: '{{ kafka_symlink_path }}'
+    state: link
+  become: yes
+  become_method: sudo
+  when: '{{ symlink_conditional }}'
+
+- name: Giving Permission to user
+  shell: chown -R {{ user }}:{{ group }} {{ kafka_symlink_path }}
+  args:
+    executable: /bin/bash
+  become: yes
+  become_method: sudo

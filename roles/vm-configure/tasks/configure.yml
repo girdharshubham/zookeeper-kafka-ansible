@@ -1,0 +1,51 @@
+- name: Checking Data Disk Availability
+  shell: fdisk -l | grep '{{ device_name }}'
+  register: device_availability
+  become: yes
+  become_method: sudo
+
+- name: Checking Mount Status
+  shell: df -h
+  when: '{{ device_mount_status_condition }}'
+  register: mount_status
+
+- name: Creating an ext4 filesystem
+  filesystem:
+    fstype: ext4
+    dev: '{{ device_name }}'
+  become: yes
+  become_method: sudo 
+  when: '{{ file_system_condition }}'
+
+- name: Mounting Data Disk
+  mount:
+    src: '{{ device_name }}'
+    path: '{{ mount_path }}'
+    state: mounted
+    fstype: ext4
+  become: yes
+  become_method: sudo
+  when: '{{ mount_data_disk_condition }}'
+
+- name: Giving Permission to user
+  shell: chown -R {{ user }}:{{ group }} /mnt/{{ service_name }}
+  args:
+    executable: /bin/bash
+  become: yes
+  become_method: sudo
+
+- name: Checking symlink availability
+  stat:
+    path: '{{ symlink_path }}'
+  register: symlink
+
+- name: Create symbolic link 
+  file:
+    src: '{{ mount_path }}'
+    dest: '{{ symlink_path }}'
+    owner: '{{ user }}'
+    group: '{{ group }}'
+    state: link
+  become: yes
+  become_method: sudo
+  when: '{{ symlink_conditional }}'

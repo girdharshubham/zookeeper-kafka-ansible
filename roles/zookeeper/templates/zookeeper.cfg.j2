@@ -1,0 +1,14 @@
+tickTime=2000
+
+initLimit=10
+
+syncLimit=5
+
+dataDir={{ symlink_path }}/data
+
+clientPort=2181
+
+{% for zookeeper in zookeeper_servers %}
+server.{{ hostvars[zookeeper].zookeeper_id }}={{ hostvars[zookeeper].ansible_eth0.ipv4.address }}:2888:3888
+{% endfor %}
+
